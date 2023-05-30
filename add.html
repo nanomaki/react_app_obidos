@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+    <center><h1 style="color: white; font-family: times; font-size: 50px">MOBILE LEGEND</h1></center>
+    <center><h1 style="color: white; font-family: times; font-size: 50px">players</h1></center>
+    <div style="width: 500px; float: right; text-align: left">
+        <a href="index.html"><button style="font-size: 18px; background-color: #C7AD7F">Back</button></a><br><br>
+
+        <form id="formnote">
+            <center>
+                <table style="font-size: 22px; font-family: Calibri" border="0" width="200">
+                    <tr>
+                        <td style="color: black"><b>PICTURE</b></td>
+                        <td>:</td>
+                        <td><input style="font-size: 18px; font-family: Calibri; background-color: #96c8a2" type="text"
+                                   name="thumbnail"></td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: black"><b>NAME</b></td>
+                        <td>:</td>
+                        <td><input style="font-size: 18px; font-family: Calibri; background-color: #96c8a2" type="text"
+                                   name="title"></td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: black"><b>SQUAD</b></td>
+                        <td>:</td>
+                        <td><input style="font-size: 18px; font-family: Calibri; background-color: #96c8a2" type="text"
+                                   name="year"></td>
+                    </tr>
+
+                    <tr>
+                        <td style="color: black"><b>ROLE</b></td>
+                        <td>:</td>
+                        <td><input style="font-size: 18px; font-family: Calibri; background-color: #96c8a2" type="text"
+                                   name="rating"></td>
+                    </tr>
+                </table>
+                <br><br>
+                <center><input style="font-size: 18px; background-color: #C7AD7F" type="submit" id="btnsave"
+                                value="Save"></center>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    <script src="index.js"></script>
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBW5OnzitkRfLDGjnDIMaEZQXD1ETswqQE",
+      authDomain: "mlbb-players.firebaseapp.com",
+      databaseURL: "https://mlbb-players-default-rtdb.firebaseio.com",
+      projectId: "mlbb-players",
+      storageBucket: "mlbb-players.appspot.com",
+      messagingSenderId: "1055151423021",
+      appId: "1:1055151423021:web:7087f06a1595541a1d82a4",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    // Get a reference to the database service
+    const db = getDatabase(app);
+
+    document.getElementById('formnote').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const noteId = Math.random().toString(36).slice(2, 7);
+        const form = document.getElementById('formnote');
+        const thumbnail = form.elements.thumbnail.value;
+        const title = form.elements.title.value;
+        const squad = form.elements.year.value;
+        const role = form.elements.rating.value;
+
+        const noteData = {
+            noteId: noteId,
+            thumbnail: thumbnail,
+            title: title,
+            squad: squad,
+            role: role
+        };
+
+        set(ref(db, 'notes/' + noteId), noteData)
+        .then(() => {
+            alert('WELCOME ' + title + '!');
+            location.reload(); // Refresh the page to display the updated note
+            window.location.href = 'index.html'; // Redirect to index.html
+        })
+        .catch((error) => {
+            console.error(error);
+            alert('Failed to update the note. Please try again.');
+        });
+
+    });
+
+    //------------EDIT---------//
+    // Retrieve the query parameters from the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const noteId = urlParams.get('noteId');
+  const title = urlParams.get('title');
+  const note = urlParams.get('note');
+  const color = urlParams.get('color');
+
+  // Populate the form fields with the retrieved data
+  document.getElementById('title').value = title;
+  document.getElementById('note').value = note;
+  document.getElementById('colorPicker').value = color;
+
+  // Submit form handler
+  document.getElementById('formnote').addEventListener('submit', (e) => {
+    e.preventDefault();
+    updateNote();
+  });
+
+  // Update Note
+  function updateNote() {
+    const titleInput = document.getElementsByName('title')[0].value;
+    const noteInput = document.getElementsByName('note')[0].value;
+    const thumbnailInput = document.getElementsByName('thumbnail')[0].value;
+    const squadInput = document.getElementsByName('year')[0].value;
+    const roleInput = document.getElementsByName('rating')[0].value;
+
+    const noteRef = ref(db, 'notes/' + noteId);
+
+    set(noteRef, {
+      Noteid: noteId,
+      title: titleInput,
+      note: noteInput,
+      thumbnail: thumbnailInput,
+      squad: squadInput,
+      role: roleInput,
+    }).then(() => {
+      alert('Note updated successfully!');
+      // Redirect back to index.html
+      window.location.href = 'index.html';
+    }).catch((error) => {
+      console.error(error);
+      alert('Failed to update the note. Please try again.');
+    });
+  }
+</script>
+
+<style>
+    body {
+        background-image: url("bg2.jpg");
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    #form {
+        background-color: transparent;
+        width: 50%;
+        border-radius: 4px;
+        margin: 250px auto;
+        padding: 50px;
+        position: fixed;
+    }
+
+    @media screen and (max-width: 570px) {
+        #form {
+            width: 65%;
+            margin-left: none;
+            padding: 40px;
+        }
+    }
+
+    h1 {
+        text-decoration: underline;
+        text-decoration-thickness: 10px;
+        text-shadow: 2px 2px black;
+    }
+
+    div {
+        background-color: transparent;
+    }
+
+    td {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 2px solid #ffc40c;
+        border-radius: 4px;
+    }
+</style>
+</html>
